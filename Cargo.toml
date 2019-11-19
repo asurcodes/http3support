@@ -1,10 +1,12 @@
 [package]
 name = "http3support"
 version = "0.1.0"
-authors = ["Asur <asur.bernardo@the-cocktail.com>"]
+authors = ["Asur <asur@asurbernardo.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.4.2"
+actix-web = { version = "1.0", features = ["ssl"] }
+actix-files = { version="0.1.7" }
+openssl = { version="0.10" }
