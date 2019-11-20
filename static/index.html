@@ -19,6 +19,7 @@
     <footer>By Asur</footer>
     <script type="text/javascript">
         document.addEventListener('submit', e => {
+            console.log('Loading...');
             // Store reference to form to make later code easier to read
             const form = e.target;
             // Declare headers
@@ -32,12 +33,16 @@
                 body: JSON.stringify({"domain": form.domain.value}),
                 cache: 'default'
             })
-            .then(function(response) {
+            .then(response => {
                 return response.json();
             })
-            .then(function(myJson) {
-                console.log(myJson);
+            .catch(err => {
+                console.log(err);
+            })
+            .finally(() => {
+                console.log('Not loading anymore...');
             });
+
             // Prevent the default form submit
             e.preventDefault();
         });

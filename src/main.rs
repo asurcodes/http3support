@@ -1,14 +1,16 @@
+#[macro_use] extern crate validator_derive;
 #[macro_use] extern crate cached;
 
 use actix_files::NamedFile;
 use validator::Validate;
-use actix_web::{web, middleware, guard, http, App, HttpResponse, HttpServer, Result};
+use actix_web::{web, middleware, guard, http, error::ErrorBadRequest, App, Error, HttpResponse, HttpServer, Result};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_derive::{Deserialize, Serialize};
+use futures::{Future};
 
 #[derive(Validate, Serialize, Deserialize)]
 struct Request {
-    #[validate(length(min = "1", max = "1000000"))]
+    #[validate(url, length(min = "10", max = "100"))]
     domain: String
 }
 
@@ -27,11 +29,14 @@ fn p404() -> Result<NamedFile> {
 
 fn support(
     request: web::Json<Request>
-) -> HttpResponse {
-    let domain = &request.domain;
-    HttpResponse::Ok().json(Response {
-        supported: check(domain.to_string())
-    })
+) -> impl Future<Item = HttpResponse, Error = Error> {
+    let validation = futures::future::result(request.validate()).map_err(ErrorBadRequest);
+    let response = Response {
+        supported: check(request.domain.to_string())
+    };
+    validation.and_then(|_|
+        Ok(HttpResponse::Ok().json(response))
+    )
 }
 
 cached!{
