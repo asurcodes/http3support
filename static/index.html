@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>HTTP/3 Support</title>
+    <meta charset="utf-8">
+    <meta name=viewport content="width=device-width,minimum-scale=1,initial-scale=1">
 </head>
 <body>
     <header>
@@ -15,11 +17,18 @@
             <input type="url" ref="domain" name="domain" pattern="(https|http)://.*" placeholder="https://example.com" required>
             <input type="submit" value="Test">
         </form>
+        <span id="loading" hidden>Loading...</span>
+        <h2>What is HTTP/3?</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ac vehicula nibh, ac condimentum libero. Phasellus suscipit, nisl nec egestas gravida, turpis magna auctor urna, eget scelerisque felis erat quis metus. Vivamus tincidunt nibh quis metus tempus accumsan. Suspendisse non velit eu magna gravida posuere. Ut aliquet nulla in justo bibendum euismod. Proin vitae ligula lectus. Aenean vel ante ut sem dignissim egestas eu ut lacus. Suspendisse rhoncus sapien felis, sit amet imperdiet mi interdum ac. Mauris pretium nisi justo, et iaculis sem viverra vel. Aliquam interdum, erat nec egestas feugiat, nibh quam cursus lacus, vitae tincidunt arcu libero at velit. </p>
+        <h2>How can HTTP/3 improve the internet?</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ac vehicula nibh, ac condimentum libero. Phasellus suscipit, nisl nec egestas gravida, turpis magna auctor urna, eget scelerisque felis erat quis metus. Vivamus tincidunt nibh quis metus tempus accumsan. Suspendisse non velit eu magna gravida posuere. Ut aliquet nulla in justo bibendum euismod. Proin vitae ligula lectus. Aenean vel ante ut sem dignissim egestas eu ut lacus. Suspendisse rhoncus sapien felis, sit amet imperdiet mi interdum ac. Mauris pretium nisi justo, et iaculis sem viverra vel. Aliquam interdum, erat nec egestas feugiat, nibh quam cursus lacus, vitae tincidunt arcu libero at velit. </p>
     </main>
     <footer>By Asur</footer>
     <script type="text/javascript">
         document.addEventListener('submit', e => {
             console.log('Loading...');
+            loading = document.getElementById('loading');
+            loading.style.display = 'block';
             // Store reference to form to make later code easier to read
             const form = e.target;
             // Declare headers
@@ -41,8 +50,8 @@
             })
             .finally(() => {
                 console.log('Not loading anymore...');
+                loading.style.display = 'none';
             });
-
             // Prevent the default form submit
             e.preventDefault();
         });
