@@ -1,25 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>HTTP/3 Support</title>
-	<link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <title>HTTP/3 Support</title>
 </head>
 <body>
-    <header class="navbar">
-      <section class="navbar-section">
-        <a href="#" class="btn btn-link">Docs</a>
-        <a href="#" class="btn btn-link">Examples</a>
-      </section>
-      <section class="navbar-center">
-        <!-- centered logo or brand -->
-      </section>
-      <section class="navbar-section">
-        <a href="#" class="btn btn-link">Twitter</a>
-        <a href="#" class="btn btn-link">GitHub</a>
-      </section>
+    <header>
+        <section>
+            <a href="/">HTTP/3.support</a>
+        </section>
     </header>
     <main>
         <h1>Test if your web supports HTTP/3</h1>
+        <form action="/support" method="POST">
+            <input type="url" ref="domain" name="domain" pattern="(https|http)://.*" placeholder="https://example.com" required>
+            <input type="submit" value="Test">
+        </form>
     </main>
+    <footer>By Asur</footer>
+    <script type="text/javascript">
+        document.addEventListener('submit', e => {
+            // Store reference to form to make later code easier to read
+            const form = e.target;
+            // Declare headers
+            const headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            headers.append('Accept-Encoding', 'gzip, deflate');
+            // Post data using the Fetch API
+            fetch(form.action, {
+                method: form.method,
+                headers: headers,
+                body: JSON.stringify({"domain": form.domain.value}),
+                cache: 'default'
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(myJson) {
+                console.log(myJson);
+            });
+            // Prevent the default form submit
+            e.preventDefault();
+        });
+    </script>
 </body>
 </html>
