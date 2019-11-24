@@ -1,22 +1,24 @@
 #[macro_use] extern crate validator_derive;
 #[macro_use] extern crate cached;
 
-use actix_files::NamedFile;
 use validator::Validate;
-use actix_web::{web, middleware, guard, http, error::ErrorBadRequest, App, Error, HttpResponse, HttpServer, Result};
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_derive::{Deserialize, Serialize};
 use futures::{Future};
+use actix_files::NamedFile;
+use actix_web::{web, middleware, guard, http, error::ErrorBadRequest, App, Error, HttpResponse, HttpServer, Result};
+use rustls::internal::pemfile::{certs, rsa_private_keys};
+use rustls::{NoClientAuth, ServerConfig};
 
 #[derive(Validate, Serialize, Deserialize)]
 struct Request {
     #[validate(url, length(min = "10", max = "100"))]
-    domain: String
+    url: String
 }
 
 #[derive(Serialize, Deserialize)]
 struct Response {
-    supported: bool
+    supported: bool,
+    url: String
 }
 
 fn index() -> Result<NamedFile> {
@@ -32,8 +34,13 @@ fn support(
     request: web::Json<Request>
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     let validation = futures::future::result(request.validate()).map_err(ErrorBadRequest);
+
+    // let url = Url::parse(request.domain.to_string())?;
+    // let base = base_url(url)?;
+
     let response = Response {
-        supported: check(request.domain.to_string())
+        supported: check(request.url.to_string()),
+        url: request.url.to_string()
     };
     validation.and_then(|_|
         Ok(HttpResponse::Ok().json(response))
@@ -48,12 +55,27 @@ cached!{
     }
 }
 
-fn main() {
-    // `openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost'`
-    let endpoint = "127.0.0.1:8080";
-    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-    builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
-    builder.set_certificate_chain_file("cert.pem").unwrap();
+fn load_ssl() -> ServerConfig {
+    use std::io::BufReader;
+
+    const CERT: &'static [u8] = include_bytes!("../cert.pem");
+    const KEY: &'static [u8] = include_bytes!("../key.pem");
+
+    let mut cert = BufReader::new(CERT);
+    let mut key = BufReader::new(KEY);
+
+    let mut config = ServerConfig::new(NoClientAuth::new());
+    let cert_chain = certs(&mut cert).unwrap();
+    let mut keys = rsa_private_keys(&mut key).unwrap();
+    config.set_single_cert(cert_chain, keys.remove(0)).unwrap();
+
+    config
+}
+
+fn main() -> std::io::Result<()> {
+    // For testing: `openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost'`
+    let endpoint = "127.0.0.1:4433";
+    let config = load_ssl();
     // Start server
     HttpServer::new(|| {
         App::new()
@@ -73,8 +95,6 @@ fn main() {
                     ),
             )
     })
-    .bind_ssl(endpoint, builder)
-    .unwrap()
+    .bind_rustls(endpoint, config)?
     .run()
-    .unwrap();
 }

@@ -1,15 +1,20 @@
+#---------------------------------
+# BUILDER IMAGE
+#---------------------------------
 
-FROM rust:1.39 AS builder
+FROM rust:latest AS builder
 
 # Dependencies
-RUN apt-get update && apt-get install -y cmake golang curl automake autoconf libtool pkg-config
+RUN apt-get update && apt-get install -y cmake golang automake autoconf libtool libssl-dev musl-tools pkg-config
 
-# Build curl + quiche
-# https://github.com/curl/curl/blob/master/docs/HTTP3.md
+RUN rustup target add x86_64-unknown-linux-musl
+
+ENV RUSTFLAGS="-C target-feature=+crt-static"
+
 WORKDIR /build
-RUN git clone --recursive https://github.com/cloudflare/quiche.git
 
-# Build boringssl
+# Build boringssl and quiche
+RUN git clone --recursive --single-branch https://github.com/cloudflare/quiche.git
 RUN cd quiche/deps/boringssl && \
     mkdir build && \
     cd build && \
@@ -19,42 +24,36 @@ RUN cd quiche/deps/boringssl && \
     mkdir -p .openssl/lib && \
     cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib && \
     ln -s $PWD/include .openssl
-
-# Build quiche
 RUN cd quiche && \
-    QUICHE_BSSL_PATH=$PWD/deps/boringssl cargo build --release --features pkg-config-meta
+    QUICHE_BSSL_PATH=$PWD/deps/boringssl RUSTFLAGS=-Clinker=musl-gcc\
+    cargo build --release --examples --features pkg-config-meta --target x86_64-unknown-linux-musl
 
-# Build curl
-RUN git clone https://github.com/curl/curl.git && \
-    cd curl && \
-    ./buildconf && \
-    ./configure LDFLAGS="-Wl,-rpath,$PWD/../quiche/target/release" \
-        --prefix=/usr/local \
-        --with-ssl=$PWD/../quiche/deps/boringssl/.openssl \
-        --with-quiche=$PWD/../quiche/target/release && \
-    make -j`nproc` && \
-    make install
-
-WORKDIR /usr/src
-RUN git clone git@github.com:asurbernardo/http3support.git
-
+# Build web binaries
+RUN git clone https://github.com/asurbernardo/http3support.git
 RUN cd http3support && \
-    cargo build --release
+    PKG_CONFIG_ALLOW_CROSS=1 RUSTFLAGS=-Clinker=musl-gcc\
+        cargo build --release --target x86_64-unknown-linux-musl
 
-# BINARY IMAGE
+#---------------------------------
+# FINAL IMAGE CONTAINING BINARIES
+#---------------------------------
 
-FROM alpine:latest
+FROM scratch
 
-RUN apk update && apk add -y ca-certificates
+# Dependencies
+# RUN apk update && apk add --no-cache ca-certificates
 
-COPY --from=builder /usr/local /usr/local
-COPY --from=builder /build/quiche/target/release/libquiche.a /usr/local/lib/
-COPY --from=builder /build/quiche/target/release/libquiche.so /usr/local/lib/
+RUN addgroup -g 1000 app
+RUN adduser -D -s /bin/sh -u 1000 -G app app
 
-RUN rm /etc/ld.so.cache && ldconfig
+WORKDIR /home/app/bin/
 
-COPY --from=builder /usr/local/cargo/bin/http3support .
+COPY --from=builder /build/quiche/target/release/examples/http3-client .
+RUN chown app:app http3-client
 
-USER 1000
+COPY --from=builder /build/http3support/target/release/http3support .
+RUN chown app:app http3support
 
-CMD ["./http3support"]
+EXPOSE 443
+
+ENTRYPOINT ["./http3support"]
