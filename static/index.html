@@ -54,7 +54,7 @@
     <main class="hero">
         <h1 class="hero__title">HTTP3.support</h1>
         <h2 class="hero__subtitle">Test if your web supports HTTP/3</h2>
-        <form class="hero__form" action="/support" method="POST">
+        <form class="hero__form" action="/check" method="POST" accept-charset="utf-8">
             <input  class="hero__input" type="url" ref="domain" name="domain" pattern="(https|http)://.*" placeholder="https://example.com" required>
             <input class="hero__submit" type="submit" value="Check!">
         </form>
@@ -62,7 +62,7 @@
         <span id="ok-message" hidden>OK</span>
         <span id="ko-message" hidden>KO</span>
         <h2>What is this site?</h2>
-        <p>Basically I packaged <b>Cloudflares Quiche</b> library within a web interface and deployed it to the internet. You can check if your server supports H3 protocol. This is an <b>Open Source</b> project so you can audit the code and contribute if you feel like it. You can check the Github repository <a href="https://github.com/asurbernardo/http3support" aria-label="GitHub repository">here</a>.</p>
+        <p>Basically I packaged <b>Cloudflares Quiche HTTP3 client</b>, put a web interface and deployed it to the internet. You can check if your server supports H3 protocol. This is an <b>Open Source</b> project so you can audit the code and contribute if you feel like it. You can check the Github repository <a href="https://github.com/asurbernardo/http3support" aria-label="GitHub repository">here</a>.</p>
     </main>
 
     <script type="text/javascript">
@@ -89,7 +89,8 @@
             .catch(err => {
                 console.log(err);
             })
-            .finally(() => {
+            .finally((response) => {
+                console.log(response);
                 console.log('Not loading anymore...');
                 loading.style.display = 'none';
             });
