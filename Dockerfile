@@ -49,7 +49,7 @@ RUN cd http3support && \
 # FINAL IMAGE CONTAINING BINARIES
 #---------------------------------
 
-FROM alpine:latests
+FROM alpine:latest
 
 RUN addgroup -g 1000 app
 RUN adduser -D -s /bin/sh -u 1000 -G app app
