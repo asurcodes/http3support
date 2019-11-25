@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y cmake golang automake autoconf libtool 
 
 RUN rustup update && rustup default nightly
 
+RUN rustup target add x86_64-unknown-linux-musl
+
 ENV RUSTFLAGS="-C target-feature=+crt-static"
 
 WORKDIR /build
@@ -17,8 +19,6 @@ WORKDIR /build
 #---------------------------------
 
 FROM base_builder AS quiche_builder
-
-RUN rustup target add x86_64-unknown-linux-musl
 
 RUN git clone --recursive --single-branch https://github.com/cloudflare/quiche.git
 RUN cd quiche/deps/boringssl && \
@@ -40,8 +40,6 @@ RUN cd quiche && \
 
 FROM base_builder AS app_builder
 
-RUN rustup target add x86_64-unknown-linux-musl
-
 RUN git clone https://github.com/asurbernardo/http3support.git
 RUN cd http3support && \
     PKG_CONFIG_ALLOW_CROSS=1 RUSTFLAGS=-Clinker=musl-gcc\
@@ -62,6 +60,7 @@ COPY --from=quiche_builder /build/quiche/target/release/examples/http3-client .
 RUN chown app:app http3-client
 
 COPY --from=app_builder /build/http3support/target/release/http3support .
+COPY --from=app_builder /build/http3support/private ./private
 RUN chown app:app http3support
 
 EXPOSE 8000

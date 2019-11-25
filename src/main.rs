@@ -31,8 +31,8 @@ fn not_found() -> String {
 }
 
 fn support (url: String) -> bool {
-    let status = Command::new("ls")
-        .arg("-l")
+    let status = Command::new("./http3client")
+        .arg(url)
         .status()
         .expect("failed to execute request");
 
