@@ -55,7 +55,7 @@
         <h1 class="hero__title">HTTP3.support</h1>
         <h2 class="hero__subtitle">Test if your web supports HTTP/3</h2>
         <form class="hero__form" action="/check" method="POST" accept-charset="utf-8">
-            <input  class="hero__input" type="url" ref="domain" name="domain" pattern="(https|http)://.*" placeholder="https://example.com" required>
+            <input  class="hero__input" type="url" ref="url" name="url" pattern="(https|http)://.*" placeholder="https://example.com" required>
             <input class="hero__submit" type="submit" value="Check!">
         </form>
         <span id="loading-message" hidden>Loading...</span>
@@ -80,7 +80,7 @@
             fetch(form.action, {
                 method: form.method,
                 headers: headers,
-                body: JSON.stringify({"domain": form.domain.value}),
+                body: JSON.stringify({"url": form.url.value}),
                 cache: 'default'
             })
             .then(response => {
