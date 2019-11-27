@@ -31,12 +31,12 @@ fn not_found() -> String {
 }
 
 fn support (url: String) -> bool {
-    let status = Command::new("http3-client")
+    let output = Command::new("http3-client")
         .arg(url)
-        .status()
-        .expect("failed to execute request");
+        .output()
+        .unwrap();
 
-    status.success()
+    !String::from_utf8(output.stderr).unwrap().contains("ERROR")
 }
 
 fn rocket() -> rocket::Rocket {

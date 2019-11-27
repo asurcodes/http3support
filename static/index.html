@@ -16,7 +16,7 @@
         .hero {
             grid-column: 1 / 3;
             max-width: 768px;
-            margin: 4rem auto 2rem;
+            margin: 2rem 1em 2rem 1em;
         }
         .hero__title {
             font-size: 4rem;
@@ -48,6 +48,12 @@
             font-size: 1.25rem;
             font-weight: 700;
         }
+        .hero__message {
+            display: block;
+            visibility: hidden;
+            margin-top: 1em;
+            font-size: 1.25em;
+        }
     </style>
 </head>
 <body>
@@ -58,21 +64,24 @@
             <input  class="hero__input" type="url" ref="url" name="url" pattern="(https|http)://.*" placeholder="https://example.com" required>
             <input class="hero__submit" type="submit" value="Check!">
         </form>
-        <span id="loading-message" hidden>Loading...</span>
-        <span id="ok-message" hidden>OK</span>
-        <span id="ko-message" hidden>KO</span>
+        <span class="hero__message" id="message">⏰ Loading...</span>
         <h2>What is this site?</h2>
         <p>Basically I packaged <b>Cloudflares Quiche HTTP3 client</b>, put a web interface and deployed it to the internet. You can check if your server supports H3 protocol. This is an <b>Open Source</b> project so you can audit the code and contribute if you feel like it. You can check the Github repository <a href="https://github.com/asurbernardo/http3support" aria-label="GitHub repository">here</a>.</p>
+        <p>Made by <a href="https://asur.dev">Asur</a> 🧐</p>
     </main>
 
     <script type="text/javascript">
+        const messages = {
+            "ok": `Your site <b>does</b> support HTTP/3! 👍`,
+            "ko": `Your site <b>doesn't</b> support HTTP/3! 👎`,
+            "loading": `⏳ Loading... ⏳`
+        };
         document.addEventListener('submit', e => {
-            console.log('Loading...');
-            loading = document.getElementById('loading-message');
-            loading.style.display = 'block';
-            // Store reference to form to make later code easier to read
+            const message = document.getElementById('message');
+            message.innerHTML = messages.loading;
+            message.style.visibility = 'visible';
+            // Manage request
             const form = e.target;
-            // Declare headers
             const headers = new Headers();
             headers.append('Content-Type', 'application/json');
             headers.append('Accept-Encoding', 'gzip, deflate');
@@ -86,13 +95,18 @@
             .then(response => {
                 return response.json();
             })
+            .then (response => {
+                switch (response.supported) {
+                    case true:
+                        message.innerHTML = messages.ok;
+                        break;
+                    case false:
+                        message.innerHTML = messages.ko;
+                        break;
+                }
+            })
             .catch(err => {
                 console.log(err);
-            })
-            .finally((response) => {
-                console.log(response);
-                console.log('Not loading anymore...');
-                loading.style.display = 'none';
             });
             // Prevent the default form submit
             e.preventDefault();
