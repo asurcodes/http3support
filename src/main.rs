@@ -31,7 +31,7 @@ fn not_found() -> String {
 }
 
 fn support (url: String) -> bool {
-    let output = Command::new("/http3-client")
+    let output = Command::new("http3-client")
         .arg(url)
         .output()
         .unwrap();
