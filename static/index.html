@@ -38,21 +38,36 @@
             margin: 0;
             border: none;
             padding: 1em;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
         }
         .hero__submit {
             margin: 0;
             border: none;
             padding: 1em;
             cursor: pointer;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
         }
         .hero__message {
             display: block;
             visibility: hidden;
             margin-top: 1em;
-            font-size: 1.25em;
+            font-size: 1.1em;
+        }
+        @media only screen and (max-width: 600px) {
+            body {
+                font-size: 14pt;
+            }
+            .hero {
+                grid-column: 0 / 3;
+                margin: .25em;
+            }
+            .hero__title {
+                font-size: 3rem;
+            }
+            .hero__subtitle {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -136,7 +151,7 @@
                 console.log(err);
                 message.innerHTML = messages.error;
             });
-        }, 1500);
+        }, 1000);
 
         document.addEventListener('submit', (e) => {
             // Show loading message
