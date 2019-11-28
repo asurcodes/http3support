@@ -38,6 +38,9 @@ FROM base_builder AS app_builder
 
 WORKDIR /build
 
+ARG key
+ARG cert
+
 ENV RUSTFLAGS="-C target-feature=+crt-static"
 
 RUN rustup default nightly
@@ -45,10 +48,14 @@ RUN rustup default nightly
 RUN rustup target add x86_64-unknown-linux-musl
 
 RUN git clone https://github.com/asurbernardo/http3support.git
+
+# For testeing add --build-arg key="$(cat ./private/key.pem)" --build-arg cert="$(cat ./private/cert.pem)"
+RUN echo "$key" > http3support/private/key.pub && \
+    echo "$cert" > http3support/private/cert.pub
+
 RUN cd http3support && \
     PKG_CONFIG_ALLOW_CROSS=1 RUSTFLAGS=-Clinker=musl-gcc\
         cargo build --release --target x86_64-unknown-linux-musl
-RUN ls -la /build/http3support/target/x86_64-unknown-linux-musl/release
 
 #---------------------------------
 # FINAL IMAGE CONTAINING BINARIES
@@ -56,12 +63,14 @@ RUN ls -la /build/http3support/target/x86_64-unknown-linux-musl/release
 
 FROM scratch
 
+WORKDIR /app
+
 COPY --from=quiche_builder /build/quiche/target/release/examples/http3-client .
 COPY --from=app_builder /build/http3support/target/x86_64-unknown-linux-musl/release/http3support .
-COPY --from=app_builder /build/http3support/private ./private
 COPY --from=app_builder /build/http3support/static ./static
 COPY --from=app_builder /build/http3support/Rocket.toml .
+COPY --from=app_builder /build/http3support/private ./private
 
 EXPOSE 8000
 
-ENTRYPOINT ["/http3support"]
+ENTRYPOINT ["/app/http3support"]
