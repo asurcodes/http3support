@@ -7,16 +7,16 @@
     <style type="text/css">
         body {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             font-size: 16pt;
             font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Open Sans,Helvetica Neue;
             line-height:1.5;
             color:#333;
         }
         .hero {
-            grid-column: 1 / 3;
+            grid-column: 2 / 3;
             max-width: 768px;
-            margin: 2rem 1em 2rem 1em;
+            margin: 1em;
         }
         .hero__title {
             font-size: 4rem;
@@ -60,28 +60,55 @@
     <main class="hero">
         <h1 class="hero__title">HTTP3.support</h1>
         <h2 class="hero__subtitle">Test if your web supports HTTP/3</h2>
+
         <form class="hero__form" action="/check" method="POST" accept-charset="utf-8">
             <input  class="hero__input" type="url" ref="url" name="url" pattern="(https|http)://.*" placeholder="https://example.com" required>
             <input class="hero__submit" type="submit" value="Check!">
         </form>
+
         <span class="hero__message" id="message">⏰ Loading...</span>
+
+        <h2>What is HTTP/3?</h2>
+        <p> It is the new <b>Hypertext Transfer Protocol standard</b> developed by Google and backed by Cloudflare and Mozilla.</p>
+        <p> H3 uses <b>QUIC</b> instead of TCP, which provides some benefits over its predecesor like <b>reduced connection latency</b> (0-RTT for known servers), <b>connection migrations</b> and better congestion control.</p>
+
         <h2>What is this site?</h2>
         <p>Basically I packaged <b>Cloudflares Quiche HTTP3 client</b>, put a web interface and deployed it to the internet. You can check if your server supports H3 protocol. This is an <b>Open Source</b> project so you can audit the code and contribute if you feel like it. You can check the Github repository <a href="https://github.com/asurbernardo/http3support" aria-label="GitHub repository">here</a>.</p>
-        <p>Made by <a href="https://asur.dev">Asur</a> 🧐</p>
-    </main>
 
+        <h2>How can I support HTTP/3?</h2>
+        <p>If you ask me, by far <b>the easiest way is to use Cloudflare</b> as a proxy to your site (this is what I do), if you feel a bit more crafty there are <a href="https://blog.cloudflare.com/experiment-with-http-3-using-nginx-and-quiche/">experimental implementations for Nginx</a>. Have fun!</p>
+
+        <p>Made by <a href="https://asur.dev">Asur</a> 🧐 </p>
+        <p>You can contact me on <a href="https://twitter.com/asurbernardo">Twitter</a> 🐦</p>
+    </main>
     <script type="text/javascript">
         const messages = {
-            "ok": `Your site <b>does</b> support HTTP/3! 👍`,
-            "ko": `Your site <b>doesn't</b> support HTTP/3! 👎`,
-            "loading": `⏳ Loading... ⏳`
+            "ok": `Your site <b>does</b> support HTTP/3! 🥳`,
+            "ko": `Your site <b>doesn't</b> support HTTP/3! 🙁`,
+            "loading": `⏳ Loading... ⏳`,
+            "error": `Whoops! Something went wrong! 🐛`
         };
-        document.addEventListener('submit', e => {
-            const message = document.getElementById('message');
-            message.innerHTML = messages.loading;
-            message.style.visibility = 'visible';
-            // Manage request
+
+        const message = document.getElementById('message');
+
+        const throttle = function (func, interval) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                const later = function () {
+                    timeout = false;
+                };
+                if (!timeout) {
+                    func.apply(context, args)
+                    timeout = true;
+                    setTimeout(later, interval)
+                }
+            }
+        }
+
+        const handleForm = throttle( function(e) {
             const form = e.target;
+            // Manage request
             const headers = new Headers();
             headers.append('Content-Type', 'application/json');
             headers.append('Accept-Encoding', 'gzip, deflate');
@@ -107,7 +134,16 @@
             })
             .catch(err => {
                 console.log(err);
+                message.innerHTML = messages.error;
             });
+        }, 1500);
+
+        document.addEventListener('submit', (e) => {
+            // Show loading message
+            message.innerHTML = messages.loading;
+            message.style.visibility = 'visible';
+            // Handle form
+            handleForm(e);
             // Prevent the default form submit
             e.preventDefault();
         });
