@@ -61,9 +61,7 @@ RUN cd http3support && \
 # FINAL IMAGE CONTAINING BINARIES
 #---------------------------------
 
-FROM scratch
-
-WORKDIR /app
+FROM scratch as app_final
 
 COPY --from=quiche_builder /build/quiche/target/release/examples/http3-client .
 COPY --from=app_builder /build/http3support/target/x86_64-unknown-linux-musl/release/http3support .
@@ -73,4 +71,4 @@ COPY --from=app_builder /build/http3support/private ./private
 
 EXPOSE 8000
 
-ENTRYPOINT ["/app/http3support"]
+ENTRYPOINT ["/http3support"]
