@@ -17,6 +17,7 @@ FROM base_builder AS quiche_builder
 WORKDIR /build
 
 RUN git clone --recursive --single-branch https://github.com/cloudflare/quiche.git
+
 RUN cd quiche/deps/boringssl && \
     mkdir build && \
     cd build && \
@@ -61,9 +62,16 @@ RUN cd http3support && \
 # FINAL IMAGE CONTAINING BINARIES
 #---------------------------------
 
-FROM scratch as app_final
+FROM debian:latest as app_final
+
+RUN apt-get update && apt-get install -y ca-certificates
+
+WORKDIR /app
+
+ENV PATH "$PATH:/app"
 
 COPY --from=quiche_builder /build/quiche/target/release/examples/http3-client .
+
 COPY --from=app_builder /build/http3support/target/x86_64-unknown-linux-musl/release/http3support .
 COPY --from=app_builder /build/http3support/static ./static
 COPY --from=app_builder /build/http3support/Rocket.toml .
@@ -71,4 +79,4 @@ COPY --from=app_builder /build/http3support/private ./private
 
 EXPOSE 8000
 
-ENTRYPOINT ["/http3support"]
+ENTRYPOINT ["/app/http3support"]
