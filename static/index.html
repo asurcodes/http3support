@@ -123,6 +123,9 @@
 
         const handleForm = throttle( function(e) {
             const form = e.target;
+            // Show loading message
+            message.innerHTML = messages.loading;
+            message.style.visibility = 'visible';
             // Manage request
             const headers = new Headers();
             headers.append('Content-Type', 'application/json');
@@ -154,9 +157,6 @@
         }, 1000);
 
         document.addEventListener('submit', (e) => {
-            // Show loading message
-            message.innerHTML = messages.loading;
-            message.style.visibility = 'visible';
             // Handle form
             handleForm(e);
             // Prevent the default form submit
