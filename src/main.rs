@@ -36,11 +36,7 @@ fn support (url: String) -> bool {
         .output()
         .unwrap();
 
-    let stderr = String::from_utf8(output.stderr).unwrap();
-
-    println!("{}", stderr);
-
-    !stderr.contains("ERROR")
+    !String::from_utf8(output.stderr).unwrap().contains("ERROR")
 }
 
 fn rocket() -> rocket::Rocket {
