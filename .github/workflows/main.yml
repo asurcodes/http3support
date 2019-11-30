@@ -31,4 +31,4 @@ jobs:
         PROJECT_ID: http3support
         APPLICATION_CREDENTIALS: ${{secrets.GCLOUD_AUTH}}
       with:
-        args: compute instances update-container http3support --container-image gcr.io/http3support/http3support:latest --quiet
+        args: compute instances update-container http3support --container-image gcr.io/http3support/http3support:latest --zone us-central1-a --quiet
