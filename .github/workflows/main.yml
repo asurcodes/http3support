@@ -25,7 +25,7 @@ jobs:
     - name: Push image to Container Registry
       uses: actions/gcloud/cli@master
       with:
-        docker -- push gcr.io/http3support/http3support:latest
+        args: docker -- push gcr.io/http3support/http3support:latest
 
     - name: Deploy image to Cloud Run
       uses: actions/gcloud/cli@master
