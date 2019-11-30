@@ -40,5 +40,5 @@ jobs:
     - name: Deploy image to Cloud Run
       uses: actions/gcloud/cli@master
       with:
-        args: compute instances update-container http3support \
+        args: beta compute instances update-container http3support \
           --container-image gcr.io/http3support/http3support:latest
