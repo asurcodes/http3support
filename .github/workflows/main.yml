@@ -22,14 +22,10 @@ jobs:
       env:
         GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
 
-    - name: Configure docker to use Container Registry
-      uses: actions/gcloud/cli@master
-      with:
-        args: auth configure-docker
-
     - name: Push image to Container Registry
+      uses: actions/gcloud/cli@master
       run: 
-        docker push gcr.io/http3support/http3support:latest
+        docker -- push gcr.io/http3support/http3support:latest
 
     - name: Deploy image to Cloud Run
       uses: actions/gcloud/cli@master
