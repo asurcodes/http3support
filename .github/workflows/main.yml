@@ -22,6 +22,11 @@ jobs:
       env:
         GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
 
+    - name: Install Beta component
+      uses: actions/gcloud/cli@master
+      with:
+        args: components install beta
+
     - name: Update CLI components
       uses: actions/gcloud/cli@master
       with:
@@ -35,5 +40,5 @@ jobs:
     - name: Deploy image to Cloud Run
       uses: actions/gcloud/cli@master
       with:
-        args: run deploy http3support --image gcr.io/http3support/http3support:latest 
+        args: run beta deploy http3support --image gcr.io/http3support/http3support:latest 
           --region us-central1 --platform managed --allow-unauthenticated --quiet
