@@ -77,6 +77,6 @@ COPY --from=app_builder /build/http3support/static ./static
 COPY --from=app_builder /build/http3support/Rocket.toml .
 COPY --from=app_builder /build/http3support/private ./private
 
-EXPOSE 8000
+EXPOSE 443
 
 ENTRYPOINT ["/app/http3support"]

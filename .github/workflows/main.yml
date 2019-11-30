@@ -40,5 +40,5 @@ jobs:
     - name: Deploy image to Cloud Run
       uses: actions/gcloud/cli@master
       with:
-        args: run beta deploy http3support --image gcr.io/http3support/http3support:latest 
-          --region us-central1 --platform managed --allow-unauthenticated --quiet
+        args: compute instances update-container nginx-vm \
+          --container-image gcr.io/http3support/http3support:latest
