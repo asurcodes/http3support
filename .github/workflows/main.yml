@@ -14,7 +14,7 @@ jobs:
 
     - name: Build docker image
       run: 
-        docker build . --build-arg key="${{ secrets.PRIVATE_KEY }}" --build-arg cert="${{ secrets.ORIGIN_CERT }}" 
+        docker build --build-arg key="${{ secrets.PRIVATE_KEY }}" --build-arg cert="${{ secrets.ORIGIN_CERT }}" 
         -t grc.io/http3support/http3support:latest .
 
     - name: GCP Authenticate
@@ -22,11 +22,16 @@ jobs:
       env:
         GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
 
-    - name: Push docker image
-      run: 
-         docker push grc.io/http3support/http3support:latest
+    - name: Deploy to Cloud Run
+      uses: actions/gcloud/cli@master
+      with:
+        args: auth configure-docker
 
-    - name: GCP List Clusters
+    - name: Push image to Container Registry
+      run: 
+        docker push grc.io/http3support/http3support:latest
+
+    - name: Deploy to Cloud Run
       uses: actions/gcloud/cli@master
       with:
         args: run deploy http3support --image grc.io/http3support/http3support:latest
