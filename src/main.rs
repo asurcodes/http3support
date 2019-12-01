@@ -28,10 +28,11 @@ fn check(form: Json<FormInput>) -> Result<Json<Response>, ParseError> {
     let scheme = url.scheme();
     let host = url.host_str().unwrap();
     let base_url = format!("{}://{}", scheme, host);
+    let s_url = base_url.trim_matches(';');
 
     Ok(Json(Response {
-            supported: support(base_url.as_str()),
-            url: base_url
+            supported: support(s_url),
+            url: s_url.to_string()
         }
     ))
 }
