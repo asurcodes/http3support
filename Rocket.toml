@@ -1,5 +1,8 @@
-[global]
+[production]
 port = 443
+
+[development]
+port = 8000
 
 [global.tls]
 certs = "private/cert.pem"
