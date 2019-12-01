@@ -6,9 +6,9 @@
 
 #[cfg(test)] mod tests;
 
+use url::{Url, ParseError};
 use std::process::Command;
-
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::json::Json;
 use rocket_contrib::serve::StaticFiles;
 
 #[derive(Serialize, Deserialize)]
@@ -16,13 +16,24 @@ struct FormInput {
     url: String
 }
 
+#[derive(Serialize, Deserialize)]
+struct Response {
+    supported: bool,
+    url: String
+}
+
 #[post("/", format = "json", data = "<form>")]
-fn check(form: Json<FormInput>) -> JsonValue {
-    let url = &form.url;
-    json!({
-        "supported": support(url.to_string()),
-        "url": url.to_string()
-    })
+fn check(form: Json<FormInput>) -> Result<Json<Response>, ParseError> {
+    let url = Url::parse(&form.url)?;
+    let scheme = url.scheme();
+    let host = url.host_str().unwrap();
+    let base_url = format!("{}://{}", scheme, host);
+
+    Ok(Json(Response {
+            supported: support(base_url.as_str()),
+            url: base_url
+        }
+    ))
 }
 
 #[catch(404)]
@@ -30,9 +41,9 @@ fn not_found() -> String {
     format!("Sorry, page not found!")
 }
 
-fn support (url: String) -> bool {
+fn support (url: &str) -> bool {
     let output = Command::new("http3-client")
-        .arg(url)
+        .arg(url.to_string())
         .output()
         .unwrap();
 
