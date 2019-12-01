@@ -13,23 +13,19 @@ jobs:
       uses: actions/checkout@master
 
     - name: Setup GCloud CLI
-      run: |
-        curl https://sdk.cloud.google.com | bash && exec -l $SHELL
+      run: curl https://sdk.cloud.google.com | bash && exec -l $SHELL
 
     - name: Authenticate on GCloud
       env:
         GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
-        GCLOUD_PROJECT: http3support
       run: |
         echo "$GCLOUD_AUTH" | base64 --decode > "$HOME"/service-account-key.json
         gcloud auth activate-service-account --key-file=$HOME/service-account-key.json
+        gcloud config set project http3support
         gcloud auth configure-docker
-        gcloud config set project $GCLOUD_PROJECT
 
     - name: Build docker image
-      run: 
-        docker build --build-arg key="${{ secrets.PRIVATE_KEY }}" --build-arg cert="${{ secrets.ORIGIN_CERT }}" 
-        -t gcr.io/http3support/http3support:latest .
+      run: docker build --build-arg key="${{ secrets.PRIVATE_KEY }}" --build-arg cert="${{ secrets.ORIGIN_CERT }}" -t gcr.io/http3support/http3support:latest .
 
     - name: Upload image to container registry
       run: docker push gcr.io/http3support/http3support
