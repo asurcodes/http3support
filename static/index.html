@@ -7,6 +7,18 @@
     <meta name="description" content="Test if your web supports HTTP3. Check if you have correctly implemented QUIC protocol on your server in just one step." />
     <link rel="canonical" href="https://http3.support" >
     <link rel="preconnect dns-prefetch" href="https://www.googletagmanager.com" crossorigin>
+    <!-- OG tags -->
+    <meta property="og:title" content="HTTP/3 Support - Check your server H3 implementation 👩‍💻">
+    <meta property="og:url" content="https://http3.support">
+    <meta property="og:description" content="Test if your web supports HTTP3. Check if you have correctly implemented QUIC protocol on your server in just one step.">
+    <meta property="og:image" content="https://http3.support/http3-support-card.jpg">
+    <meta property="og:type" content="webpage">
+    <!-- Twitter cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HTTP/3 Support - Check your server H3 implementation 👩‍💻">
+    <meta name="twitter:url" content="https://http3.support">
+    <meta name="twitter:description" content="Test if your web supports HTTP3. Check if you have correctly implemented QUIC protocol on your server in just one step.">
+    <meta name="twitter:image" content="https://http3.support/http3-support-card.jpg">
     <style type="text/css">
         body {
             display: grid;
@@ -80,7 +92,7 @@
         <h2 class="hero__subtitle">Test if your web supports HTTP/3</h2>
 
         <form class="hero__form" action="/check" method="POST" accept-charset="utf-8">
-            <input  class="hero__input" type="url" ref="url" name="url" pattern="(https|http)://.*" placeholder="https://example.com" required>
+            <input  class="hero__input" type="url" ref="url" name="url" pattern="(https|http)://.*" placeholder="https://example.com" aria-label="Input URL of the site you want to test" required>
             <input class="hero__submit" type="submit" value="Check!">
         </form>
 
@@ -88,13 +100,13 @@
 
         <h2>What is HTTP/3?</h2>
         <p> It is the new <b>Hypertext Transfer Protocol standard</b> developed by Google and backed by Cloudflare and Mozilla.</p>
-        <p> H3 uses <b>QUIC</b> instead of TCP, which provides some benefits over its predecesor like <b>reduced connection latency</b> (0-RTT for known servers), <b>connection migrations</b> and better congestion control.</p>
+        <p> H3 uses <b>QUIC</b> instead of TCP and provides some benefits over its predecesor like <b>reduced connection latency</b> (0-RTT for known servers), <b>connection migrations</b> and better congestion control.</p>
 
         <h2>What is this site?</h2>
-        <p>Basically I packaged <b>Cloudflares Quiche HTTP3 client</b>, built a web interface around it and deployed it to the internet. You can check if your server supports H3 protocol. This is an <b>Open Source</b> project so you can audit the code and contribute if you feel like it. You can check the Github repository <a href="https://github.com/asurbernardo/http3support" aria-label="GitHub repository">here</a>.</p>
+        <p>Basically I packaged <b>Cloudflares Quiche HTTP3 client</b>, built a web interface and deployed it to the internet, so you can easily check if your server supports H3 protocol. This is an <b>Open Source</b> project so you can audit the code and contribute if you like. Check out the Github repository <a href="https://github.com/asurbernardo/http3support" aria-label="GitHub repository">here</a>.</p>
 
         <h2>How can I support HTTP/3?</h2>
-        <p>If you ask me, by far <b>the easiest way is to use Cloudflare</b> as a proxy to your site (this is what I do), if you feel a bit more crafty there are <a href="https://blog.cloudflare.com/experiment-with-http-3-using-nginx-and-quiche/">experimental implementations for Nginx</a>. Have fun!</p>
+        <p>If you ask me, by far <b>the easiest way is to use Cloudflare</b> as a proxy to your site (this is what I do), if you feel a bit more crafty you can have end to end using a <a href="https://blog.cloudflare.com/experiment-with-http-3-using-nginx-and-quiche/">experimental implementations for Nginx</a>. Have fun!</p>
 
         <p>Made by <a href="https://asur.dev">Asur</a> 🧐 </p>
         <p>You can contact me on <a href="https://twitter.com/asurbernardo">Twitter</a> 🐦</p>
